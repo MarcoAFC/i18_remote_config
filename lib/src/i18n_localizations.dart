@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,9 +10,9 @@ class I18nLocalizations {
       GlobalKey<NavigatorState>();
   static String? locale;
 
-  static void startWithPackages(List<String> packages, BuildContext context) {
+  static void startWithPackages(List<String> packages, Iterable<Locale> locales, Locale Function(Locale?, Iterable<Locale>) localeResolutionCallback) {
     instance.packages.addAll(packages);
-    locale = Localizations.localeOf(context).toString();
+    locale = localeResolutionCallback(platformLocale, locales).toString();
   }
 
   static I18nLocalizations get instance {
@@ -92,5 +93,11 @@ class I18nLocalizations {
     }
 
     return stringLocale;
+  }
+
+  static Locale get platformLocale{
+    var localeBreakdown = List<String?>.filled(2, null);
+    localeBreakdown = Platform.localeName.split("_");
+    return Locale(localeBreakdown[0]!, localeBreakdown[1]);
   }
 }
